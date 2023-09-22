@@ -12,13 +12,14 @@ inline constexpr bool always_false_v = false;
 jlog::detail::tap::AsyncTap::AsyncTap(jlog::detail::os::Stream&& stream) : m_Stream(std::move(stream)) {
 	std::visit([&](auto&& arg) { this->m_Descriptor = arg.GetDescriptor(); }, this->m_Stream);
 	this->m_ThreadRunning = true;
-	this->m_MessageQueue = {};
 	this->m_LogThread = std::thread([this]() {
 		while (this->m_ThreadRunning) {
 			FlushQueue();
-			std::this_thread::yield();
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
-		FlushQueue();
+
+		while (FlushQueue()) {
+		}
 	});
 }
 
@@ -26,30 +27,33 @@ jlog::detail::tap::AsyncTap::~AsyncTap() {
 	this->m_ThreadRunning = false;
 	this->m_LogThread.join();
 }
-void jlog::detail::tap::AsyncTap::FlushQueue() {
-	std::queue<GeneralDeferedString> queue_cop;
-	{
-		std::lock_guard lg(this->m_MessageQueueMutex);
-		queue_cop.swap(this->m_MessageQueue);
+bool jlog::detail::tap::AsyncTap::FlushQueue() {
+	GeneralDeferedString strs[200];
+	size_t count = this->m_MessageQueue.wait_dequeue_bulk_timed(strs, 200, std::chrono::milliseconds(10));
+
+	if (count == 0) {
+		return false;
 	}
 
-	while (!queue_cop.empty()) {
-		auto def_msg = queue_cop.front();
+	std::string print_buf;
 
+	for (auto i = 0; i < count; i++) {
+		auto& str = strs[i];
 		std::visit(
 			[&](auto&& arg) {
 				using T = std::decay_t<decltype(arg)>;
 				if constexpr (std::is_same_v<T, DeferedString<char>>) {
-					os::Write(this->m_Descriptor, string::StringViewToByteSpan<char>(arg.callback()));
+					print_buf.append(arg.callback());
 				} else if constexpr (std::is_same_v<T, DeferedString<wchar_t>>) {
-					os::Write(this->m_Descriptor,
-							  string::StringViewToByteSpan<char>(string::WStringToString(arg.callback())));
+					print_buf.append(string::WStringToString(arg.callback()));
 				} else {
 					static_assert(always_false_v<T>, "non-exhaustive visitor!");
 				}
 			},
-			def_msg);
-
-		queue_cop.pop();
+			str);
 	}
+
+	os::Write(this->m_Descriptor,string::StringViewToByteSpan<char>(print_buf));
+
+	return true;
 }

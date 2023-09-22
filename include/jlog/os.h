@@ -52,7 +52,13 @@ class FileStream {
 	[[nodiscard]] StreamDescriptor GetDescriptor() const;
 };
 
-using Stream = std::variant<FileStream, ConsoleStream>;
+class NullStream {
+   public:
+	NullStream();
+	[[nodiscard]] static StreamDescriptor GetDescriptor();
+};
+
+using Stream = std::variant<FileStream, ConsoleStream, NullStream>;
 
 bool Write(StreamDescriptor stream, std::span<const uint8_t> data);
 

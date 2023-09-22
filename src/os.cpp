@@ -60,3 +60,7 @@ jlog::detail::os::FileStream::FileStream(jlog::detail::os::FileStream&& other) n
 	this->m_Descriptor = other.m_Descriptor;
 	other.m_Descriptor = nullptr;
 }
+jlog::detail::os::StreamDescriptor jlog::detail::os::NullStream::GetDescriptor() {
+	return nullptr;
+}
+jlog::detail::os::NullStream::NullStream() = default;

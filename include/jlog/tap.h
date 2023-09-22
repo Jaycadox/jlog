@@ -13,6 +13,7 @@
 #include <thread>
 #include <functional>
 #include "jlog/string_help.h"
+#include <blockingconcurrentqueue.h>
 
 namespace jlog::detail::tap {
 
@@ -54,8 +55,7 @@ class AsyncTap {
 	os::StreamDescriptor m_Descriptor;
 	std::atomic_bool m_ThreadRunning;
 	std::thread m_LogThread;
-	std::queue<GeneralDeferedString> m_MessageQueue;
-	std::mutex m_MessageQueueMutex;
+	moodycamel::BlockingConcurrentQueue<GeneralDeferedString> m_MessageQueue;
 	os::Stream m_Stream;
 
    public:
@@ -64,12 +64,11 @@ class AsyncTap {
 
 	template <typename T>
 	void Process(DeferedString<T>&& str) {
-		std::lock_guard lg(m_MessageQueueMutex);
-		m_MessageQueue.emplace(str);
+		m_MessageQueue.enqueue(std::move(str));
 	}
 
    private:
-	void FlushQueue();
+	bool FlushQueue();
 };
 
 }  // namespace jlog::detail::tap
