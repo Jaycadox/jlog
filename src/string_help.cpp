@@ -8,13 +8,11 @@ std::string jlog::detail::string::WStringToString(const std::wstring& wideStr) {
 #ifdef JLOG_WINDOWS
 	int bufferSize = WideCharToMultiByte(CP_UTF8, 0, wideStr.c_str(), -1, nullptr, 0, nullptr, nullptr);
 	if (bufferSize == 0) {
-		std::cerr << "Error in WideCharToMultiByte" << std::endl;
 		return "";
 	}
 
 	std::string narrowStr(bufferSize - 1, 0);  // Exclude the null-terminator
 	if (WideCharToMultiByte(CP_UTF8, 0, wideStr.c_str(), -1, &narrowStr[0], bufferSize, nullptr, nullptr) == 0) {
-		std::cerr << "Error in WideCharToMultiByte" << std::endl;
 		return "";
 	}
 

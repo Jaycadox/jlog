@@ -13,6 +13,7 @@ bool jlog::detail::os::Write(StreamDescriptor stream, const std::span<const uint
 	fflush((FILE*)stream);
 	return result;
 #elifdef JLOG_WINDOWS
+	DWORD written;
 	return WriteFile((HANDLE)stream, data.data(), data.size(), &written, nullptr);
 #endif
 }
@@ -35,7 +36,7 @@ jlog::detail::os::FileStream::FileStream(std::filesystem::path&& file_path) {
 #ifdef JLOG_UNIX_LIKE
 	this->m_Descriptor = fopen(file_path.string().c_str(), "a");
 #elifdef JLOG_WINDOWS
-	this->m_Descriptor = CreateFile(file_path.wstring().c_str(), FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS,
+	this->m_Descriptor = CreateFileW(file_path.wstring().c_str(), FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS,
 									FILE_ATTRIBUTE_NORMAL, NULL);
 #endif
 }

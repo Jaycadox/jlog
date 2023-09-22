@@ -11,6 +11,7 @@
 #include <atomic>
 #include <queue>
 #include <thread>
+#include <functional>
 #include "jlog/string_help.h"
 
 namespace jlog::detail::tap {
