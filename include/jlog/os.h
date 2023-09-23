@@ -34,7 +34,8 @@ class ConsoleStream {
 
    public:
 	ConsoleStream();
-	ConsoleStream(ConsoleStream&&) = default;
+	ConsoleStream(ConsoleStream&& other) noexcept = default;
+	ConsoleStream& operator=(ConsoleStream&& other) noexcept = default;
 	ConsoleStream(const ConsoleStream&) = delete;
 	[[nodiscard]] StreamDescriptor GetDescriptor() const;
 };
@@ -46,6 +47,7 @@ class FileStream {
    public:
 	explicit FileStream(std::filesystem::path&& file_path);
 	FileStream(FileStream&&) noexcept;
+	FileStream& operator=(FileStream&& other) noexcept;
 	FileStream(const FileStream&) = delete;
 	FileStream& operator=(const FileStream&) = delete;
 	~FileStream();

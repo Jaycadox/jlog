@@ -37,7 +37,7 @@ jlog::detail::os::FileStream::FileStream(std::filesystem::path&& file_path) {
 	this->m_Descriptor = fopen(file_path.string().c_str(), "a");
 #elifdef JLOG_WINDOWS
 	this->m_Descriptor = CreateFileW(file_path.wstring().c_str(), FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS,
-									FILE_ATTRIBUTE_NORMAL, NULL);
+									 FILE_ATTRIBUTE_NORMAL, NULL);
 #endif
 }
 
@@ -58,8 +58,9 @@ jlog::detail::os::StreamDescriptor jlog::detail::os::FileStream::GetDescriptor()
 }
 jlog::detail::os::FileStream::FileStream(jlog::detail::os::FileStream&& other) noexcept {
 	this->m_Descriptor = other.m_Descriptor;
-	other.m_Descriptor = nullptr;
+	other.m_Descriptor = (StreamDescriptor)nullptr;
 }
+
 jlog::detail::os::StreamDescriptor jlog::detail::os::NullStream::GetDescriptor() {
 	return nullptr;
 }
