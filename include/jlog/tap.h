@@ -50,6 +50,7 @@ class DefaultFormatter {
 			case LogSeverity::Debug:
 				return "Debug";
 		}
+		std::unreachable();
 	}
 
    public:
