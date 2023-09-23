@@ -87,8 +87,12 @@ class SyncTap {
 
 	template <typename Format, typename T>
 	void Process(DeferredLog<T>& str) {
-		const auto formatted_string = str.m_Callback();
-		os::Write(this->m_Descriptor, string::StringViewToByteSpan<T>(formatted_string));
+		const auto fstring = str.m_Callback();
+		const auto timestamp = str.m_Timestamp;
+		const auto severity = str.m_Severity;
+
+		os::Write(this->m_Descriptor,
+				  string::StringViewToByteSpan<T>(Format::Perform(fstring, timestamp, severity)));
 	}
 };
 

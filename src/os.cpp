@@ -58,7 +58,7 @@ jlog::detail::os::StreamDescriptor jlog::detail::os::FileStream::GetDescriptor()
 }
 jlog::detail::os::FileStream::FileStream(jlog::detail::os::FileStream&& other) noexcept {
 	this->m_Descriptor = other.m_Descriptor;
-	other.m_Descriptor = (StreamDescriptor)nullptr;
+	other.m_Descriptor = (StreamDescriptor) nullptr;
 }
 
 jlog::detail::os::StreamDescriptor jlog::detail::os::NullStream::GetDescriptor() {
