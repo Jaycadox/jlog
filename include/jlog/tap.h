@@ -97,7 +97,6 @@ class SyncTap {
 };
 
 class AsyncTap {
-	// TODO: make atomic
 	std::unique_ptr<std::atomic_bool> m_ThreadRunning;
 	std::thread m_LogThread;
 	moodycamel::BlockingConcurrentQueue<GeneralDeferedLog> m_MessageQueue;
